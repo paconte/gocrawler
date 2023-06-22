@@ -19,19 +19,6 @@ func Download(url ...string) <-chan *http.Response {
 	return out
 }
 
-func Download2(urls <-chan string) <-chan *http.Response {
-	out := make(chan *http.Response)
-	go func() {
-		for u := range urls {
-			resp, _ := http.Get(u)
-			out <- resp
-		}
-		close(out)
-	}()
-	return out
-
-}
-
 func Parse(nodes <-chan *http.Response) <-chan *html.Node {
 	out := make(chan *html.Node)
 	go func() {

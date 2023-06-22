@@ -12,6 +12,32 @@ import (
 	"golang.org/x/net/html"
 )
 
+var TargetLinks []string = []string{
+	"https://parserdigital.com/career-opportunities/",
+	"https://parserdigital.com/category/aws/",
+	"https://parserdigital.com/privacy-policy/",
+	"https://parserdigital.com/life-at-parser/",
+	"https://parserdigital.com/client-story/ey/",
+	"https://parserdigital.com/recruitment-privacy-policy/",
+	"https://parserdigital.com/how-we-work/",
+	"https://parserdigital.com/aws-understanding-the-components-of-a-vpc-chapter-2-private-vpcs-and-complex-connections/",
+	"https://parserdigital.com/client-story/modulr/",
+	"https://parserdigital.com/what-we-do/",
+	"https://parserdigital.com/career-accelerator/",
+	"https://parserdigital.com/our-work/",
+	"https://parserdigital.com/expertise/",
+	"https://parserdigital.com/approach-to-esg/",
+	"https://parserdigital.com/cookie-policy/",
+	"https://parserdigital.com/contact-us/",
+	"https://parserdigital.com/client-story/doctorlink/",
+	"https://parserdigital.com/about-us/",
+	"https://parserdigital.com/the-journey-to-our-new-values/",
+	"https://parserdigital.com/aws-understanding-the-components-of-a-vpc-chapter-1-from-the-internet-to-the-public-vpc/",
+	"https://parserdigital.com/category/qa/",
+	"https://parserdigital.com/category/women-in-tech/",
+	"https://parserdigital.com/my-experience-at-stareast/",
+}
+
 func OpenFile(relativePath string) ([]byte, error) {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -73,31 +99,7 @@ func TestGetSubdomains(t *testing.T) {
 	result := crawler.GetSubdomains(doc, domain)
 
 	// Check the result
-	expected := []string{
-		"https://parserdigital.com/career-opportunities/",
-		"https://parserdigital.com/category/aws/",
-		"https://parserdigital.com/privacy-policy/",
-		"https://parserdigital.com/life-at-parser/",
-		"https://parserdigital.com/client-story/ey/",
-		"https://parserdigital.com/recruitment-privacy-policy/",
-		"https://parserdigital.com/how-we-work/",
-		"https://parserdigital.com/aws-understanding-the-components-of-a-vpc-chapter-2-private-vpcs-and-complex-connections/",
-		"https://parserdigital.com/client-story/modulr/",
-		"https://parserdigital.com/what-we-do/",
-		"https://parserdigital.com/career-accelerator/",
-		"https://parserdigital.com/our-work/",
-		"https://parserdigital.com/expertise/",
-		"https://parserdigital.com/approach-to-esg/",
-		"https://parserdigital.com/cookie-policy/",
-		"https://parserdigital.com/contact-us/",
-		"https://parserdigital.com/client-story/doctorlink/",
-		"https://parserdigital.com/about-us/",
-		"https://parserdigital.com/the-journey-to-our-new-values/",
-		"https://parserdigital.com/aws-understanding-the-components-of-a-vpc-chapter-1-from-the-internet-to-the-public-vpc/",
-		"https://parserdigital.com/category/qa/",
-		"https://parserdigital.com/category/women-in-tech/",
-		"https://parserdigital.com/my-experience-at-stareast/",
-	}
+	expected := TargetLinks
 
 	if len(result) != len(expected) {
 		t.Errorf("GetSubdomains() returned %d links, want %d", len(result), len(expected))
