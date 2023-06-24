@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	crawler "paconte/parser/crawler"
+	"os"
+	"paconte/parser/crawler"
 )
 
 func main() {
@@ -11,12 +12,14 @@ func main() {
 
 func runCrawler() {
 	rootUrl := "https://parserdigital.com/"
-	//crawler, err := net.NewCrawler(rootUrl, "bruteforce")
-	crawler, err := crawler.NewCrawler(rootUrl, "singlevisit")
+	args := os.Args[1:]
+	crawler, err := crawler.NewCrawler(rootUrl, args[0])
+
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+
 	crawler.Run()
 	crawler.SortLinks()
 	crawler.PrintLinks()

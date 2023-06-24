@@ -44,8 +44,10 @@ func Extract(nodes <-chan *html.Node, url *url.URL) <-chan string {
 	return out
 }
 
-func Print(links <-chan string) {
+func CollectMap(links <-chan string) map[string]bool {
+	result := make(map[string]bool)
 	for link := range links {
-		println(link)
+		result[link] = true
 	}
+	return result
 }

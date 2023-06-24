@@ -5,45 +5,42 @@ import (
 	"fmt"
 	"net/url"
 	"sort"
-
-	"golang.org/x/sync/syncmap"
 )
+
+type CrawlerInterface interface {
+	Run()
+	SortLinks()
+	PrintLinks()
+}
+
+// Strategy represents a web crawling strategy.
+type Strategy interface {
+	Run(url *url.URL) []string
+}
 
 // Crawler represents a web crawler.
 type Crawler struct {
-	BaseURL  *url.URL    // Base URL of the crawler
-	Strategy Strategy    // Algorithm to use
-	Result   []string    // Result of the crawl
-	Visited  syncmap.Map // Visited URLs
+	BaseURL  *url.URL // Base URL of the crawler
+	Strategy Strategy // Algorithm to use
+	Result   []string // Result of the crawl
 }
 
 // NewCrawler creates a new web crawler with the specified base URL and maximum visits.
 func NewCrawler(baseURL string, strategy string) (*Crawler, error) {
-	var alg Strategy
+	// Parse the given URL
 	parsedURL, err := url.Parse(baseURL)
-
 	if err != nil {
 		return nil, errors.New("error parsing URL")
 	}
-
-	if strategy == "bruteforce" {
-		alg, err = NewBruteForce(parsedURL)
-		if err != nil {
-			return nil, errors.New("error creating bruteforce strategy")
-		}
-	} else if strategy == "singlevisit" {
-		alg, err = NewSingleVisit(parsedURL)
-		if err != nil {
-			return nil, errors.New("error creating singlevisit strategy")
-		}
-	} else {
-		return nil, errors.New("error creating strategy")
+	// Create the strategy
+	alg, err := createStrategy(strategy, parsedURL)
+	if err != nil {
+		return nil, err
 	}
-
+	// Create the crawler
 	crawler := &Crawler{
 		BaseURL:  parsedURL,
 		Strategy: alg,
-		Visited:  syncmap.Map{},
 	}
 
 	return crawler, nil
@@ -60,5 +57,16 @@ func (c *Crawler) SortLinks() {
 func (c *Crawler) PrintLinks() {
 	for _, link := range c.Result {
 		fmt.Println(link)
+	}
+}
+
+func createStrategy(strategy string, parsedURL *url.URL) (Strategy, error) {
+	switch strategy {
+	case "OneLevel":
+		return NewOneLevel(parsedURL), nil
+	case "Recursive":
+		return NewRecursive(parsedURL), nil
+	default:
+		return nil, errors.New("error creating strategy")
 	}
 }
