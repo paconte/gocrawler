@@ -2,15 +2,14 @@ package crawler
 
 import (
 	"errors"
-	"fmt"
 	"net/url"
 	"sort"
 )
 
 type CrawlerInterface interface {
 	Run()
+	GetResult() []string
 	SortLinks()
-	PrintLinks()
 }
 
 // Strategy represents a web crawling strategy.
@@ -20,52 +19,50 @@ type Strategy interface {
 
 // Crawler represents a web crawler.
 type Crawler struct {
-	BaseURL  *url.URL // Base URL of the crawler
 	Strategy Strategy // Algorithm to use
 	Result   []string // Result of the crawl
 }
 
 // NewCrawler creates a new web crawler with the specified base URL and maximum visits.
-func NewCrawler(baseURL string, strategy string) (*Crawler, error) {
-	// Parse the given URL
-	parsedURL, err := url.Parse(baseURL)
-	if err != nil {
-		return nil, errors.New("error parsing URL")
-	}
+func NewCrawler(strategy string) (*Crawler, error) {
 	// Create the strategy
-	alg, err := createStrategy(strategy, parsedURL)
+	alg, err := createStrategy(strategy)
 	if err != nil {
 		return nil, err
 	}
 	// Create the crawler
 	crawler := &Crawler{
-		BaseURL:  parsedURL,
 		Strategy: alg,
+		Result:   []string{},
 	}
-
 	return crawler, nil
 }
 
-func (c *Crawler) Run() {
-	c.Result = c.Strategy.Run(c.BaseURL)
+func (c *Crawler) Run(rootUrl string) ([]string, error) {
+	// Parse the given URL
+	parsedURL, err := url.Parse(rootUrl)
+	if err != nil {
+		return []string{}, errors.New("error parsing URL")
+	}
+	// Run the algorithm
+	c.Result = c.Strategy.Run(parsedURL)
+	return c.Result, nil
+}
+
+func (c *Crawler) GetResult() []string {
+	return c.Result
 }
 
 func (c *Crawler) SortLinks() {
 	sort.Strings(c.Result)
 }
 
-func (c *Crawler) PrintLinks() {
-	for _, link := range c.Result {
-		fmt.Println(link)
-	}
-}
-
-func createStrategy(strategy string, parsedURL *url.URL) (Strategy, error) {
+func createStrategy(strategy string) (Strategy, error) {
 	switch strategy {
 	case "OneLevel":
-		return NewOneLevel(parsedURL), nil
+		return NewOneLevel(), nil
 	case "Recursive":
-		return NewRecursive(parsedURL), nil
+		return NewRecursive(), nil
 	default:
 		return nil, errors.New("error creating strategy")
 	}

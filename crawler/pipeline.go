@@ -11,8 +11,10 @@ func Download(url ...string) <-chan *http.Response {
 	out := make(chan *http.Response)
 	go func() {
 		for _, u := range url {
-			resp, _ := http.Get(u)
-			out <- resp
+			resp, err := http.Get(u)
+			if err == nil {
+				out <- resp
+			}
 		}
 		close(out)
 	}()
@@ -23,8 +25,10 @@ func Parse(nodes <-chan *http.Response) <-chan *html.Node {
 	out := make(chan *html.Node)
 	go func() {
 		for resp := range nodes {
-			doc, _ := html.Parse(resp.Body)
-			out <- doc
+			doc, err := html.Parse(resp.Body)
+			if err == nil {
+				out <- doc
+			}
 		}
 		close(out)
 	}()
@@ -48,6 +52,14 @@ func CollectMap(links <-chan string) map[string]bool {
 	result := make(map[string]bool)
 	for link := range links {
 		result[link] = true
+	}
+	return result
+}
+
+func MapToList(links map[string]bool) []string {
+	result := make([]string, 0, len(links))
+	for link := range links {
+		result = append(result, link)
 	}
 	return result
 }
