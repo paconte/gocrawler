@@ -51,6 +51,14 @@ func OpenFile(relativePath string) ([]byte, error) {
 	return file, nil
 }
 
+func LoadFileAsString(t *testing.T, filePath string) string {
+	fileBytes, err := OpenFile(filePath)
+	if err != nil {
+		t.Fatalf("Error reading file: %v", err)
+	}
+	return string(fileBytes)
+}
+
 func TestIsSubdomain(t *testing.T) {
 	tests := []struct {
 		link     string
@@ -64,6 +72,8 @@ func TestIsSubdomain(t *testing.T) {
 		{"http://example.org", "https://parserdigital.com/", false},
 		{"invalid-url", "https://parserdigital.com/", false},
 		{"#", "https://parserdigital.com", false},
+		{"", "https://parserdigital.com", false},
+		{" http://foo.com/bar", "http://foo.com", false},
 	}
 
 	for _, tt := range tests {

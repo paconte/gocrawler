@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/jarcoal/httpmock"
-	"golang.org/x/exp/slices"
+	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/html"
 )
 
@@ -21,11 +21,7 @@ func TestDownload(t *testing.T) {
 
 	// Load the stored response from the file
 	filePath := "testdata/response.html"
-	fileBytes, err := OpenFile(filePath)
-	if err != nil {
-		t.Fatalf("Error reading file: %v", err)
-	}
-	fileContent := string(fileBytes)
+	fileContent := LoadFileAsString(t, filePath)
 
 	// Mock http response
 	httpmock.RegisterResponder("GET", url,
@@ -49,20 +45,16 @@ func TestDownload(t *testing.T) {
 }
 
 func TestParse(t *testing.T) {
-	url := "https://parserdigital.com/"
 	status := 200
+	url := "https://parserdigital.com/"
+	filePath := "testdata/response.html"
 
 	// Activate httpmock
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
 	// Load the stored response from the file
-	filePath := "testdata/response.html"
-	fileBytes, err := OpenFile(filePath)
-	if err != nil {
-		t.Fatalf("Error reading file: %v", err)
-	}
-	fileContent := string(fileBytes)
+	fileContent := LoadFileAsString(t, filePath)
 
 	// Mock http response
 	httpmock.RegisterResponder("GET", url,
@@ -75,6 +67,7 @@ func TestParse(t *testing.T) {
 }
 
 func TestExtract(t *testing.T) {
+	filePath := "testdata/response.html"
 	baseUrl := "https://parserdigital.com/"
 	status := 200
 
@@ -83,12 +76,7 @@ func TestExtract(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	// Load the stored response from the file
-	filePath := "testdata/response.html"
-	fileBytes, err := OpenFile(filePath)
-	if err != nil {
-		t.Fatalf("Error reading file: %v", err)
-	}
-	fileContent := string(fileBytes)
+	fileContent := LoadFileAsString(t, filePath)
 
 	// Mock http response
 	httpmock.RegisterResponder("GET", baseUrl,
@@ -108,8 +96,28 @@ func TestExtract(t *testing.T) {
 	}
 	expected := TargetLinks
 	for _, link := range expected {
-		if !slices.Contains(result, link) {
-			t.Errorf("Extract() = %v, want %v", result, expected)
-		}
+		//assert.Containsf(t, result, link, "Extract() = %v, want %v", result, expected)
+		assert.Contains(t, result, link)
 	}
+}
+
+func TestCollectMap(t *testing.T) {
+	ch := make(chan string, 2*len(TargetLinks))
+	for _, link := range TargetLinks {
+		ch <- link
+		ch <- link
+	}
+	close(ch)
+
+	result := crawler.CollectMap(ch)
+	assert.Equal(t, len(TargetLinks), len(result))
+}
+
+func TestMapToList(t *testing.T) {
+	targetsMap := make(map[string]bool)
+	for _, target := range TargetLinks {
+		targetsMap[target] = true
+	}
+	result := crawler.MapToList(targetsMap)
+	assert.Equal(t, len(result), len(TargetLinks))
 }

@@ -1,6 +1,8 @@
 package crawler
 
-import "net/url"
+import (
+	"net/url"
+)
 
 // This strategy implements asearch approach to crawl URLs recursively,
 // discovering new URLs at each level and continuing the crawling process until
@@ -10,15 +12,15 @@ type Recursive struct {
 	found   map[string]bool // Found URLs
 }
 
-func NewRecursive(baseURL *url.URL) *Recursive {
+func NewRecursive() *Recursive {
 	strategy := &Recursive{
 		visited: map[string]bool{},
-		found:   map[string]bool{baseURL.String(): true},
 	}
 	return strategy
 }
 
 func (s *Recursive) Run(rootUrl *url.URL) []string {
+	s.found = map[string]bool{rootUrl.String(): true}
 	for len(s.visited) != len(s.found) {
 		for link := range s.found {
 			if s.visited[link] {
@@ -38,7 +40,7 @@ func (s *Recursive) Run(rootUrl *url.URL) []string {
 // It returns a list of collected URLs.
 type OneLevel struct{}
 
-func NewOneLevel(baseURL *url.URL) *OneLevel {
+func NewOneLevel() *OneLevel {
 	strategy := &OneLevel{}
 	return strategy
 }
