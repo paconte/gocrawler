@@ -13,10 +13,11 @@ var (
 	// flags
 	strategy string
 	url      string
-
+	// rootCmd represents the base command when called without any subcommands.
 	rootCmd = NewRootCmd()
 )
 
+// NewRootCmd creates a new instance of the root command.
 func NewRootCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "crawler",
@@ -27,11 +28,15 @@ func NewRootCmd() *cobra.Command {
 			runCrawler()
 		},
 	}
+
+	// Define command flags
 	cmd.PersistentFlags().StringVarP(&strategy, "alg", "a", "", "The algorithm used for search, either OneLevel or Recursive")
 	cmd.PersistentFlags().StringVarP(&url, "url", "u", "", "The url to search for subdomains")
+
 	return cmd
 }
 
+// Execute executes the root command.
 func Execute(cmd *cobra.Command) {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -39,6 +44,7 @@ func Execute(cmd *cobra.Command) {
 	}
 }
 
+// runCrawler runs the web crawler using the specified strategy and URL.
 func runCrawler() {
 	crawler, err := crawler.NewCrawler(strategy)
 

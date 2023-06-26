@@ -12,6 +12,7 @@ type Recursive struct {
 	found   map[string]bool // Found URLs
 }
 
+// NewRecursive creates a new instance of the Recursive strategy.
 func NewRecursive() *Recursive {
 	strategy := &Recursive{
 		visited: map[string]bool{},
@@ -19,6 +20,8 @@ func NewRecursive() *Recursive {
 	return strategy
 }
 
+// Run starts the web crawling process using the Recursive strategy.
+// It takes the root URL as input and returns a list of visited URLs.
 func (s *Recursive) Run(rootUrl *url.URL) []string {
 	s.found = map[string]bool{rootUrl.String(): true}
 	for len(s.visited) != len(s.found) {
@@ -40,11 +43,14 @@ func (s *Recursive) Run(rootUrl *url.URL) []string {
 // It returns a list of collected URLs.
 type OneLevel struct{}
 
+// NewOneLevel creates a new instance of the OneLevel strategy.
 func NewOneLevel() *OneLevel {
 	strategy := &OneLevel{}
 	return strategy
 }
 
+// Run starts the web crawling process using the OneLevel strategy.
+// It takes the root URL as input and returns a list of collected URLs.
 func (s *OneLevel) Run(rootUrl *url.URL) []string {
 	return MapToList(CollectMap(Extract(Parse(Download(rootUrl.String())), rootUrl)))
 }
