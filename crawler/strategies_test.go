@@ -2,8 +2,9 @@ package crawler_test
 
 import (
 	"net/url"
-	"paconte/parser/crawler"
 	"testing"
+
+	"github.com/paconte/gocrawler/crawler"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
