@@ -3,8 +3,9 @@ package crawler_test
 import (
 	"io/ioutil"
 	"net/url"
-	crawler "paconte/parser/crawler"
 	"testing"
+
+	crawler "github.com/paconte/gocrawler/crawler"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"

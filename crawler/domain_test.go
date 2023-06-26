@@ -5,9 +5,11 @@ import (
 	"io/ioutil"
 	"net/url"
 	"os"
-	crawler "paconte/parser/crawler"
 	"path/filepath"
 	"testing"
+
+	crawler "github.com/paconte/gocrawler/crawler"
+	"github.com/stretchr/testify/assert"
 
 	"golang.org/x/net/html"
 )
@@ -110,15 +112,9 @@ func TestGetSubdomains(t *testing.T) {
 
 	// Check the result
 	expected := TargetLinks
-
-	if len(result) != len(expected) {
-		t.Errorf("GetSubdomains() returned %d links, want %d", len(result), len(expected))
-	}
-
+	assert.Equal(t, len(expected), len(result), "GetSubdomains() returned %d links, want %d", len(result), len(expected))
 	for _, k := range expected {
 		_, ok := result[k]
-		if !ok {
-			t.Errorf("GetSubdomains() missing link %q", k)
-		}
+		assert.True(t, ok, "GetSubdomains() missing link %q", k)
 	}
 }
