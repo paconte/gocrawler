@@ -69,6 +69,8 @@ func createStrategy(strategy string) (Strategy, error) {
 		return NewOneLevel(), nil
 	case "Recursive":
 		return NewRecursive(), nil
+	case "RecursiveParallel":
+		return NewRecursiveParallel(), nil
 	default:
 		return nil, errors.New("error creating strategy")
 	}
