@@ -30,7 +30,6 @@ func BenchmarkOneLevel(b *testing.B) {
 	c := crawler.NewOneLevel()
 	for i := 0; i < b.N; i++ {
 		c.Run(parsedUrl)
-		// assert.Equal(t, tt.expected, len(result))
 	}
 }
 
@@ -50,7 +49,6 @@ func BenchmarkRecursive(b *testing.B) {
 	c := crawler.NewRecursive()
 	for i := 0; i < b.N; i++ {
 		c.Run(parsedUrl)
-		// assert.Equal(t, tt.expected, len(result))
 	}
 }
 
@@ -70,6 +68,5 @@ func BenchmarkRecursiveParallel(b *testing.B) {
 	c := crawler.NewRecursiveParallel()
 	for i := 0; i < b.N; i++ {
 		c.Run(parsedUrl)
-		// assert.Equal(t, tt.expected, len(result))
 	}
 }
