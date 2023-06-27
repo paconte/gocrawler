@@ -29,6 +29,8 @@ func NewRecursive() *Recursive {
 // It takes the root URL as input and returns a list of visited URLs.
 func (s *Recursive) Run(rootUrl *url.URL) []string {
 	s.found = map[string]bool{rootUrl.String(): true}
+	s.visited = map[string]bool{}
+
 	for len(s.visited) != len(s.found) {
 		for link := range s.found {
 			if s.visited[link] {
@@ -69,7 +71,9 @@ func NewRecursiveParallel() *RecursiveParallel {
 // It takes the root URL as input and returns a list of visited URLs.
 func (s *RecursiveParallel) Run(rootUrl *url.URL) []string {
 	s.found = map[string]bool{rootUrl.String(): true}
+	s.visited = map[string]bool{}
 	var wg sync.WaitGroup
+
 	for len(s.visited) != len(s.found) {
 		for link := range s.found {
 			if s.isVisited(link) {
@@ -80,6 +84,7 @@ func (s *RecursiveParallel) Run(rootUrl *url.URL) []string {
 		}
 		wg.Wait()
 	}
+
 	return MapToList(s.visited)
 }
 

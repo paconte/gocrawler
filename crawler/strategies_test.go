@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var htmlFiles = map[string]string{
+var HtmlFiles = map[string]string{
 	"http://www.parserdigital.com":   "testdata/treeLevel1.html",
 	"http://www.parserdigital.com/A": "testdata/treeLevel2A.html",
 	"http://www.parserdigital.com/B": "testdata/treeLevel2B.html",
@@ -62,7 +62,7 @@ func TestRecursive(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	// Register mock responses
-	for domain, file := range htmlFiles {
+	for domain, file := range HtmlFiles {
 		// Load the stored response from the file
 		fileContent := LoadFileAsString(t, file)
 
@@ -78,7 +78,7 @@ func TestRecursive(t *testing.T) {
 	info := httpmock.GetCallCountInfo()
 
 	assert.Equal(t, 7, len(result))
-	for link := range htmlFiles {
+	for link := range HtmlFiles {
 		assert.Equal(t, 1, info["GET "+link])
 	}
 }
@@ -89,7 +89,7 @@ func TestRecursiveParallel(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	// Register mock responses
-	for domain, file := range htmlFiles {
+	for domain, file := range HtmlFiles {
 		// Load the stored response from the file
 		fileContent := LoadFileAsString(t, file)
 
@@ -105,7 +105,7 @@ func TestRecursiveParallel(t *testing.T) {
 	info := httpmock.GetCallCountInfo()
 
 	assert.Equal(t, 7, len(result))
-	for link := range htmlFiles {
+	for link := range HtmlFiles {
 		assert.Equal(t, 1, info["GET "+link])
 	}
 }
