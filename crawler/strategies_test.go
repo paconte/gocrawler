@@ -10,6 +10,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var htmlFiles = map[string]string{
+	"http://www.parserdigital.com":   "testdata/treeLevel1.html",
+	"http://www.parserdigital.com/A": "testdata/treeLevel2A.html",
+	"http://www.parserdigital.com/B": "testdata/treeLevel2B.html",
+	"http://www.parserdigital.com/C": "testdata/treeLevel3C.html",
+	"http://www.parserdigital.com/D": "testdata/treeLevel3D.html",
+	"http://www.parserdigital.com/E": "testdata/treeLevel3E.html",
+	"http://www.parserdigital.com/F": "testdata/treeLevel3F.html",
+}
+
 func TestOneLevel(t *testing.T) {
 	// Activate httpmock
 	httpmock.Activate()
@@ -52,15 +62,6 @@ func TestRecursive(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	// Register mock responses
-	htmlFiles := map[string]string{
-		"http://www.parserdigital.com":   "testdata/treeLevel1.html",
-		"http://www.parserdigital.com/A": "testdata/treeLevel2A.html",
-		"http://www.parserdigital.com/B": "testdata/treeLevel2B.html",
-		"http://www.parserdigital.com/C": "testdata/treeLevel3C.html",
-		"http://www.parserdigital.com/D": "testdata/treeLevel3D.html",
-		"http://www.parserdigital.com/E": "testdata/treeLevel3E.html",
-		"http://www.parserdigital.com/F": "testdata/treeLevel3F.html",
-	}
 	for domain, file := range htmlFiles {
 		// Load the stored response from the file
 		fileContent := LoadFileAsString(t, file)
@@ -72,8 +73,35 @@ func TestRecursive(t *testing.T) {
 
 	// Test the function
 	parsedUrl, _ := url.Parse("http://www.parserdigital.com")
-	alg := crawler.NewRecursive()
-	result := alg.Run(parsedUrl)
+	c := crawler.NewRecursive()
+	result := c.Run(parsedUrl)
+	info := httpmock.GetCallCountInfo()
+
+	assert.Equal(t, 7, len(result))
+	for link := range htmlFiles {
+		assert.Equal(t, 1, info["GET "+link])
+	}
+}
+
+func TestRecursiveParallel(t *testing.T) {
+	// Activate httpmock
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Register mock responses
+	for domain, file := range htmlFiles {
+		// Load the stored response from the file
+		fileContent := LoadFileAsString(t, file)
+
+		// Mock http response
+		httpmock.RegisterResponder("GET", domain,
+			httpmock.NewStringResponder(200, fileContent))
+	}
+
+	// Test the function
+	parsedUrl, _ := url.Parse("http://www.parserdigital.com")
+	c := crawler.NewRecursiveParallel()
+	result := c.Run(parsedUrl)
 	info := httpmock.GetCallCountInfo()
 
 	assert.Equal(t, 7, len(result))
