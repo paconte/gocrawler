@@ -18,6 +18,7 @@ func TestNewCrawler(t *testing.T) {
 	}{
 		{"OneLevel", false},
 		{"Recursive", false},
+		{"RecursiveParallel", false},
 		{"Something", true},
 		{"", true},
 	}
