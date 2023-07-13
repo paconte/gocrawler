@@ -9,8 +9,6 @@ import (
 // CrawlerInterface defines the interface for a web crawler.
 type CrawlerInterface interface {
 	Run()
-	GetResult() []string
-	SortLinks()
 }
 
 // Strategy represents a web crawling strategy.
@@ -45,21 +43,12 @@ func (c *Crawler) Run(rootUrl string) ([]string, error) {
 	// Parse the given URL
 	parsedURL, err := url.Parse(rootUrl)
 	if err != nil {
-		return []string{}, errors.New("error parsing URL")
+		return nil, err
 	}
 	// Run the algorithm
-	c.Result = c.Strategy.Run(parsedURL)
-	return c.Result, nil
-}
-
-// GetResult returns the result of the web crawl.
-func (c *Crawler) GetResult() []string {
-	return c.Result
-}
-
-// SortLinks sorts the crawled links in ascending order.
-func (c *Crawler) SortLinks() {
-	sort.Strings(c.Result)
+	result := c.Strategy.Run(parsedURL)
+	sort.Strings(result)
+	return result, nil
 }
 
 // createStrategy creates a web crawling strategy based on the provided string.

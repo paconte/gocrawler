@@ -53,10 +53,13 @@ func runCrawler() {
 		return
 	}
 
-	crawler.Run(url)
-	crawler.SortLinks()
+	result, err := crawler.Run(url)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	for _, link := range crawler.GetResult() {
+	for _, link := range result {
 		fmt.Println(link)
 	}
 }

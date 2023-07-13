@@ -31,7 +31,7 @@ func TestNewCrawler(t *testing.T) {
 	}
 }
 
-func TestRun(t *testing.T) {
+func TestRunErrors(t *testing.T) {
 	// Activate httpmock
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -53,17 +53,20 @@ func TestRun(t *testing.T) {
 		{"https://parserdigital.com/", false},
 		{" http://foo.com", true},
 		{"1http://foo.com", true},
-		{"cache_object:foo/bar", false},
+		{"cache_object:foo/bar", true},
+		{"cache_object/:foo/bar", false},
 	}
 	for _, tt := range tests {
 		_, err := c.Run(tt.url)
 		if tt.fails {
 			assert.NotNil(t, err)
+		} else {
+			assert.Nil(t, err)
 		}
 	}
 }
 
-func TestSort(t *testing.T) {
+func TestRunSorted(t *testing.T) {
 	// Activate httpmock
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -76,13 +79,12 @@ func TestSort(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://parserdigital.com/",
 		httpmock.NewStringResponder(200, fileContent))
 
-	// Test sort links
+	// Test the result is sorted
 	c, _ := crawler.NewCrawler("OneLevel")
 	resultsA, _ := c.Run("https://parserdigital.com/")
-	sort.Strings(resultsA)
-	c.SortLinks()
-	resultsB := c.GetResult()
-	assert.Equal(t, len(resultsA), len(resultsB))
+	resultsB := make([]string, len(resultsA))
+	copy(resultsB, resultsA)
+	sort.Strings(resultsB)
 	for i, link := range resultsA {
 		assert.Equal(t, link, resultsB[i])
 	}

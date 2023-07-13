@@ -40,7 +40,7 @@ Example usage:
    ./gocrawler -a Recursive  -u https://as.com
    ```
 
-## Developement
+## Development
 To use the project, you can import the relevant packages into your own Go code and utilize the provided strategies.
 
 ```go
@@ -54,12 +54,9 @@ import (
 )
 
 func main() {
-    crawler, err := crawler.NewCrawler("Recursive")
-	result := crawler.Run("https://example.com")
+   crawler, err := crawler.NewCrawler("Recursive")
+	result, err := crawler.Run("https://example.com")
 	fmt.Println(result)
-    // alternative, sort the links and print
-    crawler.SortLinks()
-    fmt.Println(crawler.GetResult())
 }
 ```
 
