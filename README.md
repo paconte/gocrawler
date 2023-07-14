@@ -54,9 +54,10 @@ import (
 )
 
 func main() {
-   crawler, err := crawler.NewCrawler("Recursive")
-	result, err := crawler.Run("https://example.com")
-	fmt.Println(result)
+   result, _ := crawler.Run("https://example.com", "Recursive")
+   for _, link := range res {
+      fmt.Println(link)
+   }
 }
 ```
 
