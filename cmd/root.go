@@ -46,17 +46,13 @@ func Execute(cmd *cobra.Command) {
 
 // runCrawler runs the web crawler using the specified strategy and URL.
 func runCrawler() {
-	crawler, err := crawler.NewCrawler(strategy)
-
+	res, err := crawler.Run(url, strategy)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	crawler.Run(url)
-	crawler.SortLinks()
-
-	for _, link := range crawler.GetResult() {
+	for _, link := range res {
 		fmt.Println(link)
 	}
 }

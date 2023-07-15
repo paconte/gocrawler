@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewCrawler(t *testing.T) {
+func TestRunStrategy(t *testing.T) {
 
 	tests := []struct {
 		strategy string
@@ -24,14 +24,14 @@ func TestNewCrawler(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		_, err := crawler.NewCrawler(tt.strategy)
+		_, err := crawler.Run("", tt.strategy)
 		if tt.fails {
 			assert.NotNil(t, err)
 		}
 	}
 }
 
-func TestRun(t *testing.T) {
+func TestRunUrl(t *testing.T) {
 	// Activate httpmock
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -45,7 +45,6 @@ func TestRun(t *testing.T) {
 		httpmock.NewStringResponder(200, fileContent))
 
 	// Test Run
-	c, _ := crawler.NewCrawler("OneLevel")
 	tests := []struct {
 		url   string
 		fails bool
@@ -53,17 +52,23 @@ func TestRun(t *testing.T) {
 		{"https://parserdigital.com/", false},
 		{" http://foo.com", true},
 		{"1http://foo.com", true},
-		{"cache_object:foo/bar", false},
+		{"cache_object:foo/bar", true},
+		{"cache_object/:foo/bar", false},
 	}
 	for _, tt := range tests {
-		_, err := c.Run(tt.url)
+		_, err := crawler.Run(tt.url, "OneLevel")
 		if tt.fails {
 			assert.NotNil(t, err)
+		} else {
+			assert.Nil(t, err)
 		}
 	}
 }
 
-func TestSort(t *testing.T) {
+func TestRunResultIsSorted(t *testing.T) {
+	url := "https://parserdigital.com/"
+	strategy := "OneLevel"
+
 	// Activate httpmock
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -73,16 +78,14 @@ func TestSort(t *testing.T) {
 	fileContent := LoadFileAsString(t, filePath)
 
 	// Mock http response
-	httpmock.RegisterResponder("GET", "https://parserdigital.com/",
+	httpmock.RegisterResponder("GET", url,
 		httpmock.NewStringResponder(200, fileContent))
 
-	// Test sort links
-	c, _ := crawler.NewCrawler("OneLevel")
-	resultsA, _ := c.Run("https://parserdigital.com/")
-	sort.Strings(resultsA)
-	c.SortLinks()
-	resultsB := c.GetResult()
-	assert.Equal(t, len(resultsA), len(resultsB))
+	// Test the result is sorted
+	resultsA, _ := crawler.Run(strategy, url)
+	resultsB := make([]string, len(resultsA))
+	copy(resultsB, resultsA)
+	sort.Strings(resultsB)
 	for i, link := range resultsA {
 		assert.Equal(t, link, resultsB[i])
 	}

@@ -1,7 +1,6 @@
 package crawler_test
 
 import (
-	"net/url"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
@@ -20,16 +19,14 @@ func BenchmarkOneLevel(b *testing.B) {
 	// Register mock responses
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	domain := "http://www.parserdigital.com"
+	url := "http://www.parserdigital.com"
 	fileContent := BLoadFileAsString(b, "testdata/treeLevel1.html")
-	httpmock.RegisterResponder("GET", domain,
+	httpmock.RegisterResponder("GET", url,
 		httpmock.NewStringResponder(200, fileContent))
 
 	// Test the function
-	parsedUrl, _ := url.Parse(domain)
-	c := crawler.NewOneLevel()
 	for i := 0; i < b.N; i++ {
-		c.Run(parsedUrl)
+		crawler.Run(url, "OneLevel")
 	}
 }
 
@@ -45,10 +42,8 @@ func BenchmarkRecursive(b *testing.B) {
 	}
 
 	// Test the function
-	parsedUrl, _ := url.Parse("http://www.parserdigital.com")
-	c := crawler.NewRecursive()
 	for i := 0; i < b.N; i++ {
-		c.Run(parsedUrl)
+		crawler.Run("http://www.parserdigital.com", "Recursive")
 	}
 }
 
@@ -64,9 +59,7 @@ func BenchmarkRecursiveParallel(b *testing.B) {
 	}
 
 	// Test the function
-	parsedUrl, _ := url.Parse("http://www.parserdigital.com")
-	c := crawler.NewRecursiveParallel()
 	for i := 0; i < b.N; i++ {
-		c.Run(parsedUrl)
+		crawler.Run("http://www.parserdigital.com", "RecursiveParallel")
 	}
 }
