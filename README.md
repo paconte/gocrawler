@@ -3,8 +3,7 @@ A simple web crawler written in go.
 
 ## Project Description
 
-The project provides different strategies for crawling websites and extracting information from them.
-
+The project provides different strategies for crawling websites and extracting information from them. Visit the file crawler/go.doc for detailed information.
 
 ## Installation
 
