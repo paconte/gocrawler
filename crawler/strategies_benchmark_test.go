@@ -26,7 +26,7 @@ func BenchmarkOneLevel(b *testing.B) {
 
 	// Test the function
 	for i := 0; i < b.N; i++ {
-		crawler.Run(url, "OneLevel")
+		crawler.Run(url, "OneLevel", emptyLimits)
 	}
 }
 
@@ -43,7 +43,7 @@ func BenchmarkRecursive(b *testing.B) {
 
 	// Test the function
 	for i := 0; i < b.N; i++ {
-		crawler.Run("http://www.parserdigital.com", "Recursive")
+		crawler.Run("http://www.parserdigital.com", "Recursive", emptyLimits)
 	}
 }
 
@@ -60,6 +60,6 @@ func BenchmarkRecursiveParallel(b *testing.B) {
 
 	// Test the function
 	for i := 0; i < b.N; i++ {
-		crawler.Run("http://www.parserdigital.com", "RecursiveParallel")
+		crawler.Run("http://www.parserdigital.com", "RecursiveParallel", emptyLimits)
 	}
 }
