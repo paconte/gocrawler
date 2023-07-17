@@ -10,6 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var emptyLimits = crawler.Limits{}
+
 func TestRunStrategy(t *testing.T) {
 
 	tests := []struct {
@@ -18,13 +20,15 @@ func TestRunStrategy(t *testing.T) {
 	}{
 		{"OneLevel", false},
 		{"Recursive", false},
+		{"RecursiveWithLimits", false},
 		{"RecursiveParallel", false},
+		{"RecursiveParallelWithLimits", false},
 		{"Something", true},
 		{"", true},
 	}
 
 	for _, tt := range tests {
-		_, err := crawler.Run("", tt.strategy)
+		_, err := crawler.Run("", tt.strategy, emptyLimits)
 		if tt.fails {
 			assert.NotNil(t, err)
 		}
@@ -56,7 +60,7 @@ func TestRunUrl(t *testing.T) {
 		{"cache_object/:foo/bar", false},
 	}
 	for _, tt := range tests {
-		_, err := crawler.Run(tt.url, "OneLevel")
+		_, err := crawler.Run(tt.url, "OneLevel", emptyLimits)
 		if tt.fails {
 			assert.NotNil(t, err)
 		} else {
@@ -82,7 +86,7 @@ func TestRunResultIsSorted(t *testing.T) {
 		httpmock.NewStringResponder(200, fileContent))
 
 	// Test the result is sorted
-	resultsA, _ := crawler.Run(strategy, url)
+	resultsA, _ := crawler.Run(strategy, url, emptyLimits)
 	resultsB := make([]string, len(resultsA))
 	copy(resultsB, resultsA)
 	sort.Strings(resultsB)

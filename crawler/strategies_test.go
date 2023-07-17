@@ -50,8 +50,8 @@ func TestOneLevel(t *testing.T) {
 
 		// Test the function
 		parsedUrl, _ := url.Parse(tt.url)
-		alg := crawler.NewOneLevel()
-		result := alg.Run(parsedUrl)
+		strategy := crawler.NewOneLevel(parsedUrl)
+		result := strategy.Run()
 		assert.Equal(t, tt.expected, len(result))
 	}
 }
@@ -73,8 +73,8 @@ func TestRecursive(t *testing.T) {
 
 	// Test the function
 	parsedUrl, _ := url.Parse("http://www.parserdigital.com")
-	c := crawler.NewRecursive()
-	result := c.Run(parsedUrl)
+	strategy := crawler.NewRecursive(parsedUrl)
+	result := strategy.Run()
 	info := httpmock.GetCallCountInfo()
 
 	assert.Equal(t, 7, len(result))
@@ -100,12 +100,98 @@ func TestRecursiveParallel(t *testing.T) {
 
 	// Test the function
 	parsedUrl, _ := url.Parse("http://www.parserdigital.com")
-	c := crawler.NewRecursiveParallel()
-	result := c.Run(parsedUrl)
+	strategy := crawler.NewRecursiveParallel(parsedUrl)
+	result := strategy.Run()
 	info := httpmock.GetCallCountInfo()
 
 	assert.Equal(t, 7, len(result))
 	for link := range HtmlFiles {
 		assert.Equal(t, 1, info["GET "+link])
+	}
+}
+
+func TestRecursiveWithLimits(t *testing.T) {
+	// Activate httpmock
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Register mock responses
+	for domain, file := range HtmlFiles {
+		// Load the stored response from the file
+		fileContent := LoadFileAsString(t, file)
+
+		// Mock http response
+		httpmock.RegisterResponder("GET", domain,
+			httpmock.NewStringResponder(200, fileContent))
+	}
+
+	// Define test cases
+	tests := []struct {
+		milliseconds int
+		requests     int
+		expected     int
+	}{
+		{100 * 1000, 100, 7},
+		{100 * 1000, 0, 0},
+		{0, 10, 0},
+	}
+
+	// Test the function
+	parsedUrl, _ := url.Parse("http://www.parserdigital.com")
+	for _, tt := range tests {
+		strategy := crawler.NewRecursiveWithLimits(
+			parsedUrl, crawler.Limits{Milliseconds: tt.milliseconds, Requests: tt.requests})
+		result := strategy.Run()
+		info := httpmock.GetCallCountInfo()
+
+		assert.Equal(t, tt.expected, len(result))
+		if tt.expected == 7 {
+			for link := range HtmlFiles {
+				assert.Equal(t, 1, info["GET "+link])
+			}
+		}
+	}
+}
+
+func TestRecursiveParallelWithLimits(t *testing.T) {
+	// Activate httpmock
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Register mock responses
+	for domain, file := range HtmlFiles {
+		// Load the stored response from the file
+		fileContent := LoadFileAsString(t, file)
+
+		// Mock http response
+		httpmock.RegisterResponder("GET", domain,
+			httpmock.NewStringResponder(200, fileContent))
+	}
+
+	// Define test cases
+	tests := []struct {
+		milliseconds int
+		requests     int
+		expected     int
+	}{
+		{100 * 1000, 100, 7},
+		{100 * 1000, 0, 0},
+		{0, 10, 0},
+	}
+
+	// Test the function
+	parsedUrl, _ := url.Parse("http://www.parserdigital.com")
+	for _, tt := range tests {
+		strategy := crawler.NewRecursiveParallelWithLimits(
+			parsedUrl, crawler.Limits{Milliseconds: tt.milliseconds, Requests: tt.requests})
+		result := strategy.Run()
+		info := httpmock.GetCallCountInfo()
+
+		assert.Equal(t, tt.expected, len(result))
+		if tt.expected == 7 {
+			for link := range HtmlFiles {
+				assert.Equal(t, 1, info["GET "+link])
+			}
+		}
 	}
 }
